@@ -1,9 +1,16 @@
 import React from 'react';
 
-function TodoListItem({ todo }) {  // Destructure todo from props
+function TodoListItem({ todo }) {
   return (
     <li>
-      {todo.title}                 
+      <input 
+        type="checkbox"
+        checked={todo.completed}
+      />
+      <span>{todo.title}</span>
+      <button>
+        Delete
+      </button>
     </li>
   );
 }
