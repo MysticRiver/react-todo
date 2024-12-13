@@ -1,6 +1,6 @@
 import React from 'react';
 
-function TodoListItem({ todo }) {
+function TodoListItem({ todo, onRemoveTodo }) {
   return (
     <li>
       <input 
@@ -8,11 +8,16 @@ function TodoListItem({ todo }) {
         checked={todo.completed}
       />
       <span>{todo.title}</span>
-      <button>
-        Delete
+      <button 
+        type="button"
+        onClick={() => onRemoveTodo(todo.id)}
+      >
+        Remove
       </button>
     </li>
   );
 }
 
 export default TodoListItem;
+
+

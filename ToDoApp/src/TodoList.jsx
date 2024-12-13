@@ -1,24 +1,18 @@
 import React from 'react';
+import TodoListItem from './TodoListItem';
 
-function TodoList({ todoList }) {
-  const listItems = todoList.map(todo => (
-    <li key={todo.id}>
-      <input 
-        type="checkbox"
-        checked={todo.completed}
-      />
-      <span>{todo.title}</span>
-      <button>
-        Delete
-      </button>
-    </li>
-  ));
-
+function TodoList({ todoList, onRemoveTodo }) {
   return (
     <div>
       <h1>Todo List</h1>
       <ul>
-        {listItems}
+        {todoList.map(todo => (
+          <TodoListItem 
+            key={todo.id}
+            todo={todo}
+            onRemoveTodo={onRemoveTodo}
+          />
+        ))}
       </ul>
     </div>
   );
