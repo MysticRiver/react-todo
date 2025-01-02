@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 //added a null check when initializing from localStorage to prevent errors if there's no saved data
 export default function App() {
   const [todoList, setTodoList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     new Promise((resolve, reject) => {
@@ -18,9 +19,9 @@ export default function App() {
       }, 2000);
     }).then((result) => {
       setTodoList(result.data.todoList);
+      setIsLoading(false);
     });
   }, []);
-
 
   useEffect(() => {
     localStorage.setItem('savedTodoList', JSON.stringify(todoList));
