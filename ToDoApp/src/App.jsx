@@ -5,10 +5,23 @@ import { useState, useEffect } from 'react';
 
 //added a null check when initializing from localStorage to prevent errors if there's no saved data
 export default function App() {
-  const [todoList, setTodoList] = useState(
-    () => JSON.parse(localStorage.getItem('savedTodoList')) || []
-  );
+  const [todoList, setTodoList] = useState([]);
   
+  useEffect(() => {
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve({ 
+          data: {
+            todoList: JSON.parse(localStorage.getItem('savedTodoList')) || []
+          } 
+        });
+      }, 2000);
+    }).then((result) => {
+      setTodoList(result.data.todoList);
+    });
+  }, []);
+
+
   useEffect(() => {
     localStorage.setItem('savedTodoList', JSON.stringify(todoList));
   }, [todoList]);
