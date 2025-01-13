@@ -31,7 +31,7 @@ export default function App() {
   };
 
   const removeTodo = (id) => {
-    setTodoList(todoList.filter((todo) => todo.id !== id));
+    setTodoList(prevTodoList => prevTodoList.filter((todo) => todo.id !== id));
   };
 
   return (
