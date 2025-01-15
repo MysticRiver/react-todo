@@ -3,7 +3,16 @@ import TodoList from './TodoList';
 import AddTodoForm from './AddTodoForm';
 import { useState, useEffect } from 'react';
 
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route
+} from "react-router-dom";
+
 export default function App() {
+  
+    
   const [todoList, setTodoList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -26,7 +35,7 @@ export default function App() {
         throw new Error(message);
       } 
 
-      const data = await response.json();
+      
       
       const todosFromAPI = await response.json();
       
@@ -61,12 +70,33 @@ export default function App() {
 
   return (
     <>
-      <h1>My Todo List</h1>
-      <AddTodoForm onAddTodo={addTodo} />
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
-      )}
+      <Router>
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <>
+                <h1>My Todo List</h1>
+                <AddTodoForm onAddTodo={addTodo} />
+                {isLoading ? (
+                  <p>Loading...</p>
+                ) : (
+                  <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
+                )}
+              </>
+            }
+          />
+           <Route 
+          path="/new" 
+          element={
+            <>
+              <h1>New Todo List</h1>
+               {/*Extra Credit : Added a Form for adding new todos */}
+               <AddTodoForm onAddTodo={addTodo} />
+            </>
+          }
+        />
+        </Routes>
+      </Router>
     </>
   )};
