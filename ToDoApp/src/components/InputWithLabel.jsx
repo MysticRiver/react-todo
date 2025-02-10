@@ -1,34 +1,26 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
-const InputWithLabel = ({ id, label, value, onChange, type = "text", name }) => {  
-  const inputRef = useRef();
-
-  useEffect(() => {
-    inputRef.current.focus();
-  });
+const InputWithLabel = ({ todoTitle, handleTitleChange, id, label }) => {  
+ 
 
   return (
     <>
       <label htmlFor={id}>{label}</label>
       <input 
-        ref={inputRef}
-        type={type}
         id={id}
-        name={name || id}
-        value={value}
-        onChange={onChange}
+        type="text"
+        value={todoTitle}
+        onChange={handleTitleChange}
      />
     </>
   );
 };
 InputWithLabel.propTypes = {
+  todoTitle: PropTypes.string.isRequired,
+  handleTitleChange: PropTypes.func.isRequired,
   id: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  type: PropTypes.string,
-  name: PropTypes.string
+  label: PropTypes.string.isRequired
 };
 
 export default InputWithLabel;

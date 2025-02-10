@@ -20,11 +20,13 @@ export default function App() {
     const options = {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_API_TOKEN}`
+        'Authorization': `Bearer ${import.meta.env.VITE_AIRTABLE_API_TOKEN}`
       }
     };
 
-    const url = `https://api.airtable.com/v0/${import.meta.env.VITE_AIRTABLE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
+    const url = `https://api.airtable.com/v0/${
+        import.meta.env.VITE_AIRTABLE_BASE_ID
+      }/${import.meta.env.VITE_AIRTABLE_TABLE_ID}?view=Grid%20view`;
   
 
     try {
@@ -60,12 +62,81 @@ export default function App() {
     localStorage.setItem('savedTodoList', JSON.stringify(todoList));
   }, [todoList]);
 
-  const addTodo = (newTodo) => {
-    setTodoList([...todoList, newTodo]);
+  const addTodo = async (newTodo) => {
+    // Don't proceed if the title is empty
+    if (!newTodo.title.trim()) {
+      return;
+    }
+  
+    const options = {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_AIRTABLE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        records: [
+          {
+            fields: {
+              title: newTodo.title.trim()
+            }
+          }
+        ]
+      })
+    };
+  
+    const url = `https://api.airtable.com/v0/${
+      import.meta.env.VITE_AIRTABLE_BASE_ID
+    }/${import.meta.env.VITE_AIRTABLE_TABLE_ID}`;
+  
+    try {
+      const response = await fetch(url, options);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      
+      if (data.records && data.records[0]) {
+        const addedTodo = {
+          id: data.records[0].id,
+          title: data.records[0].fields.title
+        };
+        setTodoList(prevList => [...prevList, addedTodo]);
+      }
+    } catch (error) {
+      console.error('Error adding todo:', error);
+    }
   };
+  
 
-  const removeTodo = (id) => {
-    setTodoList(prevTodoList => prevTodoList.filter((todo) => todo.id !== id));
+  const removeTodo = async (id) => {
+    const options = {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_AIRTABLE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    };
+  
+    const url = `https://api.airtable.com/v0/${
+      import.meta.env.VITE_AIRTABLE_BASE_ID
+    }/${import.meta.env.VITE_AIRTABLE_TABLE_ID}/${id}`;
+  
+    try {
+      const response = await fetch(url, options);
+  
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+  
+      // Only remove from state if the API call was successful
+      setTodoList(prevTodoList => prevTodoList.filter(todo => todo.id !== id));
+  
+    } catch (error) {
+      console.error('Error removing todo:', error);
+    }
   };
 
   return (
