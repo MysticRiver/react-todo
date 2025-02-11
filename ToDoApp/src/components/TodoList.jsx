@@ -1,30 +1,27 @@
+// src/components/TodoList.jsx
 import React from 'react';
 import TodoListItem from './TodoListItem';
 import PropTypes from 'prop-types';
 
-function TodoList({ todoList, onRemoveTodo }) {
+function TodoList({ todoList, onRemoveTodo, onToggleComplete }) {
   return (
-    <div>
-           <ul>
-        {todoList.map(todo => (
-          <TodoListItem 
-            key={todo.id}
-            todo={todo}
-            onRemoveTodo={onRemoveTodo}
-          />
-        ))}
-      </ul>
-    </div>
+    <ul>
+      {todoList && todoList.map((todo) => (
+        <TodoListItem 
+          key={todo.id} 
+          todo={todo} 
+          onRemoveTodo={onRemoveTodo}
+          onToggleComplete={onToggleComplete}
+        />
+      ))}
+    </ul>
   );
 }
+
 TodoList.propTypes = {
-  todoList: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      title: PropTypes.string.isRequired
-    })
-  ).isRequired,
-  onRemoveTodo: PropTypes.func.isRequired
+  todoList: PropTypes.array.isRequired,
+  onRemoveTodo: PropTypes.func.isRequired,
+  onToggleComplete: PropTypes.func.isRequired
 };
 
 export default TodoList;

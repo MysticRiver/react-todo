@@ -1,48 +1,53 @@
-// TodoListItem.jsx
+// src/components/TodoListItem.jsx
 import React from 'react';
-import style from './TodoListItem.module.css';
-import '../index.css'
+import PropTypes from 'prop-types';
+import styles from './TodoListItem.module.css';
 import { FaTrash } from 'react-icons/fa';
 import { FaCheck } from 'react-icons/fa';
-import PropTypes from 'prop-types';
 
-function TodoListItem({ todo, onRemoveTodo }) {
+function TodoListItem({ todo, onRemoveTodo, onToggleComplete }) {
   return (
-    <div className={style.container}>
-      <li className={style.listItem}>
-        <div className={style.checkboxContainer}>
-          <input 
-            className={style.checkbox}
-            type="checkbox"
-            checked={todo.completed}
-          />
-          <span className={style.checkIcon}>
-            {todo.completed && <FaCheck />}
-          </span>
-        </div>
-        <span className={`${style.title} ${todo.completed ? style.completed : ''}`}>
-          {todo.title}
-        </span>
-        <button 
-          className={style.button}
-          type="button"
-          onClick={() => onRemoveTodo(todo.id)}
+    
+    <div className={styles.container}>
+      <div className={styles.checkboxContainer}>
+        <input
+          type="checkbox"
+          className={styles.checkbox}
+          checked={todo.completed}
+          onChange={() => onToggleComplete(todo.id)}
+          id={`todo-${todo.id}`}
+        />
+        <label 
+          htmlFor={`todo-${todo.id}`} 
+          className={styles.checkIcon}
         >
-          <FaTrash /> Remove
-        </button>
-      </li>
+         {<FaCheck />}
+        </label>
+      </div>
+      <span className={`${styles.title} ${todo.completed ? styles.completed : ''}`}>
+        {todo.title}
+      </span>
+      <button 
+        onClick={() => onRemoveTodo(todo.id)}
+        className={styles.removeButton}
+      >
+        <FaTrash />
+        Remove
+        
+      </button>
     </div>
+  
   );
 }
-//Added Prop Types for the TodoListItem component
+
 TodoListItem.propTypes = {
   todo: PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
-    completed: PropTypes.bool.isRequired
+    completed: PropTypes.bool
   }).isRequired,
-  onRemoveTodo: PropTypes.func.isRequired
+  onRemoveTodo: PropTypes.func.isRequired,
+  onToggleComplete: PropTypes.func.isRequired
 };
 
-
-export default TodoListItem
+export default TodoListItem;
