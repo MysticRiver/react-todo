@@ -7,8 +7,8 @@ import { FaCheck } from 'react-icons/fa';
 
 function TodoListItem({ todo, onRemoveTodo, onToggleComplete }) {
   return (
-    
     <div className={styles.container}>
+    <div className={styles.listItem}>
       <div className={styles.checkboxContainer}>
         <input
           type="checkbox"
@@ -36,7 +36,7 @@ function TodoListItem({ todo, onRemoveTodo, onToggleComplete }) {
         
       </button>
     </div>
-  
+    </div>
   );
 }
 
