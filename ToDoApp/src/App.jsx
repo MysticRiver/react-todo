@@ -187,35 +187,35 @@ useEffect(() => {
     }
   };
  //Extra Credit : Added a button to toggle the sort order
-  return (
-    <>
-      <Router>
+ return (
+  <>
+    <Router>
       <nav>
-  <ul>
-    <li>
-      <NavLink 
-        to="/" 
-        className={({ isActive }) => isActive ? 'active' : ''}
-      >
-        Home
-      </NavLink>
-    </li>
-    <li>
-      <NavLink 
-        to="/new" 
-        className={({ isActive }) => isActive ? 'active' : ''}
-      >
-        New Todo
-      </NavLink>
-    </li>
-  </ul>
-</nav>
+        <ul>
+          <li>
+            <NavLink 
+              to="/" 
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
+              to="/new" 
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              New Todo
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
       <Routes>
         <Route 
           path="/" 
           element={
             <>
-              <h1>My Todo List</h1>
+              <h1>Todo List: {tableName}</h1>
               <div className="controls">
                 <SortButton 
                   sortOrder={sortOrder} 
@@ -235,17 +235,16 @@ useEffect(() => {
             </>
           }
         />
-           <Route 
+        <Route 
           path="/new" 
           element={
             <>
               <h1>New Todo List</h1>
-               {/*Extra Credit : Added a Form for adding new todos */}
-               <AddTodoForm onAddTodo={addTodo} />
+              <AddTodoForm onAddTodo={addTodo} />
             </>
           }
         />
-        </Routes>
-      </Router>
-    </>
+      </Routes>
+    </Router>
+  </>
   )};
