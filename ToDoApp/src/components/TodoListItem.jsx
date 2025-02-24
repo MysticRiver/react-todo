@@ -1,9 +1,10 @@
 // TodoListItem.jsx
 import React from 'react';
 import style from './TodoListItem.module.css';
-import './index.css'
+import '../index.css'
 import { FaTrash } from 'react-icons/fa';
 import { FaCheck } from 'react-icons/fa';
+import PropTypes from 'prop-types';
 
 function TodoListItem({ todo, onRemoveTodo }) {
   return (
@@ -33,5 +34,15 @@ function TodoListItem({ todo, onRemoveTodo }) {
     </div>
   );
 }
+//Added Prop Types for the TodoListItem component
+TodoListItem.propTypes = {
+  todo: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    completed: PropTypes.bool.isRequired
+  }).isRequired,
+  onRemoveTodo: PropTypes.func.isRequired
+};
+
 
 export default TodoListItem
