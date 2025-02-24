@@ -4,6 +4,7 @@ import AddTodoForm from './components/AddTodoForm';
 import { useState, useEffect } from 'react';
 import SortButton from './components/SortButton';
 import useSortLogic from './hooks/useSortLogic';
+import { NavLink } from 'react-router-dom';
 
 import React from "react";
 import {
@@ -189,6 +190,26 @@ useEffect(() => {
   return (
     <>
       <Router>
+      <nav>
+  <ul>
+    <li>
+      <NavLink 
+        to="/" 
+        className={({ isActive }) => isActive ? 'active' : ''}
+      >
+        Home
+      </NavLink>
+    </li>
+    <li>
+      <NavLink 
+        to="/new" 
+        className={({ isActive }) => isActive ? 'active' : ''}
+      >
+        New Todo
+      </NavLink>
+    </li>
+  </ul>
+</nav>
       <Routes>
         <Route 
           path="/" 
