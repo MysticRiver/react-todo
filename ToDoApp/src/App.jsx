@@ -2,6 +2,8 @@ import "./App.css";
 import TodoList from './components/TodoList';
 import AddTodoForm from './components/AddTodoForm';
 import { useState, useEffect } from 'react';
+import SortButton from './components/SortButton';
+import useSortLogic from './hooks/useSortLogic';
 
 import React from "react";
 import {
@@ -15,16 +17,60 @@ export default function App() {
     
   const [todoList, setTodoList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { sortOrder, toggleSortOrder } = useSortLogic(setTodoList);
+  
+  const toggleComplete = async (id) => {
+    // First find the todo item
+    const todoToUpdate = todoList.find(todo => todo.id === id);
+    if (!todoToUpdate) return;
+  
+    const options = {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_AIRTABLE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fields: {
+          completed: !todoToUpdate.completed
+        }
+      })
+    };
+  
+    const url = `https://api.airtable.com/v0/${
+      import.meta.env.VITE_AIRTABLE_BASE_ID
+    }/${import.meta.env.VITE_AIRTABLE_TABLE_ID}/${id}`;
+  
+    try {
+      const response = await fetch(url, options);
+  
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+  
+      // Update local state
+      setTodoList(prevList =>
+        prevList.map(todo =>
+          todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        )
+      );
+    } catch (error) {
+      console.error('Error updating todo:', error);
+    }
+  };
+  
   
   const fetchData = async () => {
     const options = {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_API_TOKEN}`
+        'Authorization': `Bearer ${import.meta.env.VITE_AIRTABLE_API_TOKEN}`
       }
     };
 
-    const url = `https://api.airtable.com/v0/${import.meta.env.VITE_AIRTABLE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
+    const url = `https://api.airtable.com/v0/${
+        import.meta.env.VITE_AIRTABLE_BASE_ID
+      }/${import.meta.env.VITE_AIRTABLE_TABLE_ID}?view=Grid%20view&sort[0][field]=title&sort[0][direction]=${sortOrder}`;
   
 
     try {
@@ -41,7 +87,8 @@ export default function App() {
       
       const todos = todosFromAPI.records.map((todo) => ({
         id: todo.id,
-        title: todo.fields.title
+        title: todo.fields.title,
+        completed: todo.fields.completed || false
       }));
 
       setTodoList(todos);
@@ -52,40 +99,121 @@ export default function App() {
       setIsLoading(false);
     }
   };
-  useEffect(() => {
-    fetchData();
-  }, []);
+ // Update useEffect to include sortOrder in dependencies
+useEffect(() => {
+  fetchData();
+}, [sortOrder]); // This will refetch when sort order changes
 
   useEffect(() => {
     localStorage.setItem('savedTodoList', JSON.stringify(todoList));
   }, [todoList]);
 
-  const addTodo = (newTodo) => {
-    setTodoList([...todoList, newTodo]);
+  const addTodo = async (newTodo) => {
+    // Don't proceed if the title is empty
+    if (!newTodo.title.trim()) {
+      return;
+    }
+  
+    const options = {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_AIRTABLE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        records: [
+          {
+            fields: {
+              title: newTodo.title.trim(),
+              completed: false
+            }
+          }
+        ]
+      })
+    };
+  
+    const url = `https://api.airtable.com/v0/${
+      import.meta.env.VITE_AIRTABLE_BASE_ID
+    }/${import.meta.env.VITE_AIRTABLE_TABLE_ID}`;
+  
+    try {
+      const response = await fetch(url, options);
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      
+      if (data.records && data.records[0]) {
+        const addedTodo = {
+          id: data.records[0].id,
+          title: data.records[0].fields.title
+        };
+        setTodoList(prevList => [...prevList, addedTodo]);
+      }
+    } catch (error) {
+      console.error('Error adding todo:', error);
+    }
   };
+  
 
-  const removeTodo = (id) => {
-    setTodoList(prevTodoList => prevTodoList.filter((todo) => todo.id !== id));
+  const removeTodo = async (id) => {
+    const options = {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${import.meta.env.VITE_AIRTABLE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    };
+  
+    const url = `https://api.airtable.com/v0/${
+      import.meta.env.VITE_AIRTABLE_BASE_ID
+    }/${import.meta.env.VITE_AIRTABLE_TABLE_ID}/${id}`;
+  
+    try {
+      const response = await fetch(url, options);
+  
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+  
+      // Only remove from state if the API call was successful
+      setTodoList(prevTodoList => prevTodoList.filter(todo => todo.id !== id));
+  
+    } catch (error) {
+      console.error('Error removing todo:', error);
+    }
   };
-
+ //Extra Credit : Added a button to toggle the sort order
   return (
     <>
       <Router>
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              <>
-                <h1>My Todo List</h1>
+      <Routes>
+        <Route 
+          path="/" 
+          element={
+            <>
+              <h1>My Todo List</h1>
+              <div className="controls">
+                <SortButton 
+                  sortOrder={sortOrder} 
+                  onSortToggle={toggleSortOrder} 
+                />
                 <AddTodoForm onAddTodo={addTodo} />
-                {isLoading ? (
-                  <p>Loading...</p>
-                ) : (
-                  <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
-                )}
-              </>
-            }
-          />
+              </div>
+              {isLoading ? (
+                <p>Loading...</p>
+              ) : (
+                <TodoList 
+                  todoList={todoList} 
+                  onRemoveTodo={removeTodo}  
+                  onToggleComplete={toggleComplete}
+                />
+              )}
+            </>
+          }
+        />
            <Route 
           path="/new" 
           element={
